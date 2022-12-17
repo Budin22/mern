@@ -1,20 +1,25 @@
 import React from "react";
-import { Card, CardActions, CardContent, Typography } from "@mui/material";
-type Props = {};
+import { Card, Typography } from "@mui/material";
+
+type Props = {
+  msg: string;
+  author: string;
+  time: string;
+  id: string;
+  userName: string;
+};
 
 export const Message = (props: Props) => {
+  const { author, msg, time, userName } = props;
+  const bg = userName === author ? "white" : "lightsteelblue";
   return (
-    <Card sx={{ maxWidth: 345 }}>
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="p">
-          Text
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Typography variant="h5" color="text.secondary">
-          author
-        </Typography>
-      </CardActions>
+    <Card sx={{ maxWidth: 500, padding: 1, backgroundColor: bg }}>
+      <Typography variant="h6" component="p">
+        {msg}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {author} : {time}
+      </Typography>
     </Card>
   );
 };
