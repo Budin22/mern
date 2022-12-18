@@ -13,21 +13,20 @@ export const Chat = (props: Props) => {
 
   const [msg, setMsg] = useState<Array<MessageI>>([]);
   const [message, setMessage] = useState<string>("");
+  const [isOldChat, setIsOldChat] = useState<boolean>(true);
 
   useEffect(() => {
-    let ignore = false;
-    socket.on("receive-message", (message: MessageI) => {
-      if (!ignore) {
-        if (msg.length === 0) {
-          setMsg((state) => [message, ...state]);
-        } else if (msg[msg.length - 1].id !== message.id) {
-          setMsg((state) => [message, ...state]);
-        }
-      }
+    if (isOldChat) {
+      socket.emit("get-chat", room);
+      socket.on("get-chat", (chat: Array<MessageI>) => {
+        setMsg(chat);
+      });
+      setIsOldChat(() => false);
+    }
+
+    socket.on("receive-message", (chat: Array<MessageI>) => {
+      setMsg(chat);
     });
-    return () => {
-      ignore = true;
-    };
   }, [socket]);
 
   const sendMessage = () => {
@@ -41,10 +40,11 @@ export const Chat = (props: Props) => {
         room,
       };
       socket.emit("send-message", data);
-      setMsg((state) => [data, ...state]);
       setMessage("");
     }
   };
+
+  console.log(msg);
 
   return (
     <Container>
@@ -65,7 +65,7 @@ export const Chat = (props: Props) => {
         </Button>
       </Stack>
       <Stack sx={{ gap: 1 }}>
-        {msg.map(({ author, msg, time, id }) => (
+        {msg?.map(({ author, msg, time, id }) => (
           <Message
             key={id}
             author={author}

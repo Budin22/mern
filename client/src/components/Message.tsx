@@ -11,7 +11,7 @@ type Props = {
 
 export const Message = (props: Props) => {
   const { author, msg, time, userName } = props;
-  const bg = userName === author ? "white" : "lightsteelblue";
+  const bg = userName === author ? "lightsteelblue" : "white";
   return (
     <Card sx={{ maxWidth: 500, padding: 1, backgroundColor: bg }}>
       <Typography variant="h6" component="p">
