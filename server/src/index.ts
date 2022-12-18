@@ -1,5 +1,6 @@
 import express from "express";
 import fs from "fs";
+import path from "path";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
@@ -28,24 +29,22 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   socket.on("get-chat", (room: string) => {
     let chat: Array<MsgT> = [];
-    try {
-      chat = JSON.parse(fs.readFileSync(`${room}.txt`, "utf8"));
-    } catch (err) {
-      console.log(err);
+    const pathToChat = path.join(__dirname, "/chats", `${room}.txt`);
+    if (fs.existsSync(pathToChat)) {
+      chat = JSON.parse(fs.readFileSync(pathToChat, "utf8"));
     }
     socket.emit("get-chat", chat);
   });
 
   socket.on("send-message", (data: MsgT) => {
     let chat: Array<MsgT> = [];
-    try {
-      chat = JSON.parse(fs.readFileSync(`${data.room}.txt`, "utf8"));
-    } catch (err) {
-      console.log(err);
+    const pathToChat = path.join(__dirname, "/chats", `${data.room}.txt`);
+    if (fs.existsSync(pathToChat)) {
+      chat = JSON.parse(fs.readFileSync(pathToChat, "utf8"));
     }
 
-    fs.writeFileSync(`${data.room}.txt`, JSON.stringify([data, ...chat]));
-    chat = JSON.parse(fs.readFileSync(`${data.room}.txt`, "utf8"));
+    fs.writeFileSync(pathToChat, JSON.stringify([data, ...chat]));
+    chat = JSON.parse(fs.readFileSync(pathToChat, "utf8"));
 
     io.sockets.to(data.room).emit("receive-message", chat);
   });
